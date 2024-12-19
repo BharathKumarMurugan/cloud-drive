@@ -4,12 +4,13 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { createAccount } from "@/lib/actions/user.actions";
+import { api_createAccount } from "@/lib/actions/user.actions";
+import OTPModal from "./OTPModal";
 
 type FormType = "sign-in" | "sign-up";
 
@@ -39,7 +40,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
     setIsLoading(true);
     setErrorMessage("");
     try {
-      const user = await createAccount({
+      const user = await api_createAccount({
         fullName: values.fullName || "",
         email: values.email,
       });
@@ -101,6 +102,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
         </form>
       </Form>
       {/* otp verification */}
+      {accountId && <OTPModal email={form.getValues("email")} accountId={accountId} />}
     </>
   );
 };

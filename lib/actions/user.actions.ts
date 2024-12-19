@@ -4,6 +4,7 @@ import { Query, ID } from "node-appwrite";
 import { createAdminClient } from "../appwrite";
 import { appwriteConfig } from "../appwrite/config";
 import { parseStringify } from "../utils";
+import { cookies } from "next/headers";
 
 /**
  * Create Account -> Flow
@@ -28,7 +29,7 @@ const handleError = (error: unknown, message: string) => {
   throw error;
 };
 
-const sendEmailOtp = async ({ email }: { email: string }) => {
+export const api_sendEmailOtp = async ({ email }: { email: string }) => {
   const { account } = await createAdminClient();
   try {
     const session = await account.createEmailToken(ID.unique(), email);
@@ -38,9 +39,9 @@ const sendEmailOtp = async ({ email }: { email: string }) => {
   }
 };
 
-export const createAccount = async ({ fullName, email }: { fullName: string; email: string }) => {
+export const api_createAccount = async ({ fullName, email }: { fullName: string; email: string }) => {
   const existingUser = await getUserByEmail(email);
-  const accountId = await sendEmailOtp({ email });
+  const accountId = await api_sendEmailOtp({ email });
   if (!accountId) {
     throw new Error("Failed to send email OTP");
   }
@@ -54,5 +55,18 @@ export const createAccount = async ({ fullName, email }: { fullName: string; ema
     });
   }
 
-  return parseStringify({accountId});
+  return parseStringify({ accountId });
+};
+
+export const api_verifyOtp = async ({ accountId, password }: { accountId: string; password: string }) => {
+  try {
+    const { account } = await createAdminClient();
+    const session = await account.createSession(accountId, password);
+    // send the sesstion to cookies to store it
+    (await cookies()).set("appwrite-session", session.secret, { path: "/", httpOnly: true, sameSite: "strict", secure: true });
+
+    return parseStringify({ sessionId: session.$id });
+  } catch (error) {
+    handleError(error, "Failed to verify OTP");
+  }
 };
