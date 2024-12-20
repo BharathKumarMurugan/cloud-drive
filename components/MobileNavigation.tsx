@@ -8,6 +8,7 @@ import { navItems } from "@/constants";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import FileUploader from "./FileUploader";
+import { api_signOutUser } from "@/lib/actions/user.actions";
 
 interface MobileNavigationProps {
   fullName: string;
@@ -42,23 +43,23 @@ const MobileNavigation = ({ ownerId, accountId, fullName, avatar, email }: Mobil
 
           <nav className="mobile-nav">
             <ul className="mobile-nav-list">
-            {navItems.map(({ name, icon, url }) => (
-            <Link key={name} href={url} className="lg:w-full ">
-              <li className={cn("mobile-nav-item", pathname === url && "shad-active")}>
-                <Image src={icon} width={24} height={24} alt={name} className={cn("nav-icon", pathname === url && "nav-icon-active")} />
-                <p className="lg:block">{name}</p>
-              </li>
-            </Link>
-          ))}
+              {navItems.map(({ name, icon, url }) => (
+                <Link key={name} href={url} className="lg:w-full ">
+                  <li className={cn("mobile-nav-item", pathname === url && "shad-active")}>
+                    <Image src={icon} width={24} height={24} alt={name} className={cn("nav-icon", pathname === url && "nav-icon-active")} />
+                    <p className="lg:block">{name}</p>
+                  </li>
+                </Link>
+              ))}
             </ul>
           </nav>
           <Separator className="my-5 bg-light-200/20" />
           <div className="flex flex-col justify-between gap-5 pb-5">
             <FileUploader />
-            <button type="submit" className="mobile-sign-out-button" onClick={() => {}}>
-                        <Image src="/assets/icons/logout.svg" alt="logout" width={24} height={24} className="" />
-                        <p>Sign Out</p>
-                      </button>
+            <button type="submit" className="mobile-sign-out-button" onClick={async () => await api_signOutUser()}>
+              <Image src="/assets/icons/logout.svg" alt="logout" width={24} height={24} className="" />
+              <p>Sign Out</p>
+            </button>
           </div>
         </SheetContent>
       </Sheet>

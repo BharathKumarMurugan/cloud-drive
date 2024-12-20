@@ -6,6 +6,7 @@ import { appwriteConfig } from "../appwrite/config";
 import { parseStringify } from "../utils";
 import { cookies } from "next/headers";
 import { avatarPlaceholderUrl } from "@/constants";
+import { redirect } from "next/navigation";
 
 /**
  * Create Account -> Flow
@@ -79,6 +80,32 @@ export const api_getCurrentUser = async () => {
   const user = await databases.listDocuments(appwriteConfig.databaseId, appwriteConfig.usersCollectionId, [Query.equal("accountId", result.$id)]);
 
   if (user.total <= 0) return null;
-  
+
   return parseStringify(user.documents[0]);
+};
+
+export const api_signOutUser = async () => {
+  const { account } = await createSessionClient();
+  try {
+    // Delete the current session to log out the user
+    await account.deleteSession("current");
+    (await cookies()).delete("appwrite-session");
+  } catch (error) {
+    handleError(error, "Failed to singout the user");
+  } finally {
+    redirect("/sign-in");
+  }
+};
+
+export const api_signInUser = async ({ email }: { email: string }) => {
+  try {
+    const existingUser = await getUserByEmail(email);
+    if (existingUser) {
+      await api_sendEmailOtp({ email });
+      return parseStringify({ accountId: existingUser.accountId });
+    }
+    return parseStringify({ accountId: null, error: "User not found" });
+  } catch (error) {
+    handleError(error, "Failed to sing in the user");
+  }
 };
