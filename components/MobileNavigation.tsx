@@ -1,5 +1,5 @@
 "use client";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -14,11 +14,11 @@ interface MobileNavigationProps {
   fullName: string;
   avatar: string;
   email: string;
-  ownerId: string;
+  $id: string;
   accountId: string;
 }
 
-const MobileNavigation = ({ ownerId, accountId, fullName, avatar, email }: MobileNavigationProps) => {
+const MobileNavigation = ({ $id: ownerId, accountId, fullName, avatar, email }: MobileNavigationProps) => {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   return (
@@ -55,7 +55,7 @@ const MobileNavigation = ({ ownerId, accountId, fullName, avatar, email }: Mobil
           </nav>
           <Separator className="my-5 bg-light-200/20" />
           <div className="flex flex-col justify-between gap-5 pb-5">
-            <FileUploader />
+            <FileUploader ownerId={ownerId} accountId={accountId} />
             <button type="submit" className="mobile-sign-out-button" onClick={async () => await api_signOutUser()}>
               <Image src="/assets/icons/logout.svg" alt="logout" width={24} height={24} className="" />
               <p>Sign Out</p>
