@@ -17,6 +17,8 @@ import Link from "next/link";
 import { constructDownloadUrl } from "@/lib/utils";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { api_renameFile } from "@/lib/actions/file.actions";
+import { usePathname } from "next/navigation";
 
 const ActionsDropdown = ({ file }: { file: Models.Document }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,6 +27,7 @@ const ActionsDropdown = ({ file }: { file: Models.Document }) => {
   const [dropAction, setDropAction] = useState<ActionType | null>(null);
   const [name, setName] = useState(file.name);
   const [isLoading, setIsLoading] = useState(false);
+  const path = usePathname();
 
   const closeAllModals = () => {
     setIsModalOpen(false);
@@ -34,7 +37,24 @@ const ActionsDropdown = ({ file }: { file: Models.Document }) => {
     // reset emails;
   };
 
-  const handleAction = async () => {};
+  const handleAction = async () => {
+    if(!dropAction) return;
+    setIsLoading(true);
+    let success = false;
+
+    const actions = {
+      rename: () => api_renameFile({
+         fileId: file.$id,
+         name,
+         extension: file.extension,
+         path }),
+        share: () => console.log("share"),  
+        delete: () => console.log("delete"),
+    }
+    success = await actions[dropAction.value as keyof typeof actions]();
+    if(success) closeAllModals();
+    setIsLoading(false);
+  };
 
   const renderDialog = () => {
     if (!dropAction) return null;
