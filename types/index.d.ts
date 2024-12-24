@@ -31,7 +31,7 @@ declare interface RenameFileProps {
   extension: string;
   path: string;
 }
-declare interface UpdateFileUsersProps {
+declare interface SharedFileUsersProps {
   fileId: string;
   emails: string[];
   path: string;

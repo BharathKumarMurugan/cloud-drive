@@ -17,7 +17,7 @@ import Link from "next/link";
 import { constructDownloadUrl } from "@/lib/utils";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { api_renameFile } from "@/lib/actions/file.actions";
+import { api_renameFile, api_shareFile } from "@/lib/actions/file.actions";
 import { usePathname } from "next/navigation";
 import { FileDetails, ShareFile } from "./ActionsModalContent";
 
@@ -40,7 +40,16 @@ const ActionsDropdown = ({ file }: { file: Models.Document }) => {
     // reset emails;
   };
 
-  const handleRemoveEmail = () => {}
+  const handleRemoveEmail = async (email: string) => {
+    const updatedEmails = emails.filter((e) => e !== email);
+    const success = await api_shareFile({
+      fileId: file.$id,
+      emails: updatedEmails,
+      path,
+    })
+    if(success) setEmails(updatedEmails);
+    closeAllModals();
+  }
 
   const handleAction = async () => {
     if(!dropAction) return;
@@ -53,7 +62,11 @@ const ActionsDropdown = ({ file }: { file: Models.Document }) => {
          name,
          extension: file.extension,
          path }),
-        share: () => console.log("share"),  
+        share: () => api_shareFile({
+          fileId: file.$id,
+          emails,
+          path
+        }),  
         delete: () => console.log("delete"),
     }
     success = await actions[dropAction.value as keyof typeof actions]();

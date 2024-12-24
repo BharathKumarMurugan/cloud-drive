@@ -65,7 +65,7 @@ export const ShareFile = ({ file, onInputChange, onRemove }: ShareFileProps) => 
             {file.users.map((email: string) => (
               <li key={email} className="flex justify-between items-center gap-2">
                 <p className="subtitle-2">{email}</p>
-                <Button onClick={() => onRemove(email)}>
+                <Button onClick={() => onRemove(email)} className="share-remove-user">
                   <Image src="/assets/icons/remove.svg" alt="remove" className="remove-icon" width={24} height={24} />
                 </Button>
               </li>

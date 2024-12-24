@@ -67,14 +67,14 @@ export const api_getFiles = async () => {
 
     const files = await databases.listDocuments(appwriteConfig.databaseId, appwriteConfig.filesCollectionId, queries);
 
-    console.log({ files }); 
+    console.log({ files });
     return parseStringify(files);
   } catch (error) {
     handleError(error, "Failed to get files");
   }
 };
 
-export const api_renameFile = async ({fileId, name, extension, path}: RenameFileProps) => {
+export const api_renameFile = async ({ fileId, name, extension, path }: RenameFileProps) => {
   const { databases } = await createAdminClient();
   try {
     const newName = `${name}.${extension}`;
@@ -86,4 +86,17 @@ export const api_renameFile = async ({fileId, name, extension, path}: RenameFile
   } catch (error) {
     handleError(error, "Failed to rename file");
   }
-}
+};
+
+export const api_shareFile = async ({ fileId, emails, path }: SharedFileUsersProps) => {
+  const { databases } = await createAdminClient();
+  try {
+    const updatedFile = await databases.updateDocument(appwriteConfig.databaseId, appwriteConfig.filesCollectionId, fileId, {
+      users: emails,
+    });
+    revalidatePath(path);
+    return parseStringify(updatedFile);
+  } catch (error) {
+    handleError(error, "Failed to share the file");
+  }
+};
