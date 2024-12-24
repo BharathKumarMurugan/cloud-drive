@@ -63,11 +63,11 @@ export const api_getFiles = async () => {
     }
     const queries = createQueries(currentUser);
 
-    console.log({ currentUser, queries });
+    // console.log({ currentUser, queries });
 
     const files = await databases.listDocuments(appwriteConfig.databaseId, appwriteConfig.filesCollectionId, queries);
 
-    console.log({ files });
+    // console.log({ files });
     return parseStringify(files);
   } catch (error) {
     handleError(error, "Failed to get files");
@@ -98,5 +98,19 @@ export const api_shareFile = async ({ fileId, emails, path }: SharedFileUsersPro
     return parseStringify(updatedFile);
   } catch (error) {
     handleError(error, "Failed to share the file");
+  }
+};
+
+export const api_deleteFile = async ({ fileId, bucketFileId, path }: DeleteFileProps) => {
+  const { databases, storage } = await createAdminClient();
+  try {
+    const deletedFile = await databases.deleteDocument(appwriteConfig.databaseId, appwriteConfig.filesCollectionId, fileId);
+    if (deletedFile) {
+      await storage.deleteFile(appwriteConfig.bucketId, bucketFileId);
+    }
+    revalidatePath(path);
+    return parseStringify({ status: "success" });
+  } catch (error) {
+    handleError(error, "Failed to delete the file");
   }
 };

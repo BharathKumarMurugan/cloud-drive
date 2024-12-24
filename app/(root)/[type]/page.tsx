@@ -29,7 +29,7 @@ const files = await api_getFiles();
       </section>
       {/* Render files */}
       {files.total > 0 ? (
-        <section className="files-list">
+        <section className="file-list">
           {files.documents.map((file: Models.Document) => (
             <Card key={file.$id} file={file} />
           ))}

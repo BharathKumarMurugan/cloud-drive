@@ -17,7 +17,7 @@ import Link from "next/link";
 import { constructDownloadUrl } from "@/lib/utils";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { api_renameFile, api_shareFile } from "@/lib/actions/file.actions";
+import { api_deleteFile, api_renameFile, api_shareFile } from "@/lib/actions/file.actions";
 import { usePathname } from "next/navigation";
 import { FileDetails, ShareFile } from "./ActionsModalContent";
 
@@ -46,31 +46,39 @@ const ActionsDropdown = ({ file }: { file: Models.Document }) => {
       fileId: file.$id,
       emails: updatedEmails,
       path,
-    })
-    if(success) setEmails(updatedEmails);
+    });
+    if (success) setEmails(updatedEmails);
     closeAllModals();
-  }
+  };
 
   const handleAction = async () => {
-    if(!dropAction) return;
+    if (!dropAction) return;
     setIsLoading(true);
     let success = false;
 
     const actions = {
-      rename: () => api_renameFile({
-         fileId: file.$id,
-         name,
-         extension: file.extension,
-         path }),
-        share: () => api_shareFile({
+      rename: () =>
+        api_renameFile({
+          fileId: file.$id,
+          name,
+          extension: file.extension,
+          path,
+        }),
+      share: () =>
+        api_shareFile({
           fileId: file.$id,
           emails,
-          path
-        }),  
-        delete: () => console.log("delete"),
-    }
+          path,
+        }),
+      delete: () =>
+        api_deleteFile({
+          fileId: file.$id,
+          bucketFileId: file.bucketFileId,
+          path,
+        }),
+    };
     success = await actions[dropAction.value as keyof typeof actions]();
-    if(success) closeAllModals();
+    if (success) closeAllModals();
     setIsLoading(false);
   };
 
@@ -82,12 +90,12 @@ const ActionsDropdown = ({ file }: { file: Models.Document }) => {
         <DialogHeader className="flex flex-col gap-3">
           <DialogTitle className="text-center text-light-100">{label}</DialogTitle>
           {value === "rename" && <Input type="text" value={name} onChange={(e) => setName(e.target.value)} />}
-          {value=== "details" && <FileDetails file={file} />}
-          {value==="share" && (
-            <ShareFile
-            file={file}
-            onInputChange={setEmails}
-            onRemove={handleRemoveEmail} />
+          {value === "details" && <FileDetails file={file} />}
+          {value === "share" && <ShareFile file={file} onInputChange={setEmails} onRemove={handleRemoveEmail} />}
+          {value === "delete" && (
+            <p className="delete-confirmation">
+              Are you sure to delete the file <span className="delete-file-name">{file.name}</span> ?
+            </p>
           )}
         </DialogHeader>
         {["rename", "share", "delete"].includes(value) && (
