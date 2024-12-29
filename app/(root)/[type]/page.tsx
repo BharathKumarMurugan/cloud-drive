@@ -11,7 +11,6 @@ const page = async ({ searchParams, params }: SearchParamProps) => {
   const sort = ((await searchParams)?.sort as string) || "";
 
   const types = getFileTypesParams(type) as FileType[];
-  console.log("web->searchText->", searchText);
 
   const files = await api_getFiles({ types, searchText, sort });
 

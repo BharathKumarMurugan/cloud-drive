@@ -37,7 +37,7 @@ const OTPModal = ({ accountId, email }: { accountId: string; email: string }) =>
 
   const handleResentOtp = async () => {
     // call api to resend otp
-    await api_sendEmailOtp({email});
+    await api_sendEmailOtp({ email });
     setPassword("");
   };
 

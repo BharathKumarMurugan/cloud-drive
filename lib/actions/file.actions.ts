@@ -55,7 +55,6 @@ const createQueries = (currentUser: Models.Document, types: string[], searchText
     queries.push(Query.equal("type", types));
   }
   if (searchText) {
-    console.log("(createquery)searchText->", searchText);
     queries.push(Query.contains("name", searchText));
   }
   if (limit) {
@@ -66,7 +65,6 @@ const createQueries = (currentUser: Models.Document, types: string[], searchText
 
     queries.push(orderBy === "asc" ? Query.orderAsc(sortBy) : Query.orderDesc(sortBy));
   }
-  console.log({ queries });
   return queries;
 };
 
@@ -77,14 +75,10 @@ export const api_getFiles = async ({ types = [], searchText = "", sort = "$creat
     if (!currentUser) {
       throw new Error("User not found");
     }
-    console.log("(getfiles)searchText->", searchText);
     const queries = createQueries(currentUser, types, searchText, sort, limit);
-
-    // console.log({ currentUser, queries });
 
     const files = await databases.listDocuments(appwriteConfig.databaseId, appwriteConfig.filesCollectionId, queries);
 
-    // console.log({ files });
     return parseStringify(files);
   } catch (error) {
     handleError(error, "Failed to get files");
