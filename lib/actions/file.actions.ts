@@ -47,21 +47,38 @@ export const api_uploadFile = async ({ file, ownerId, accountId, path }: UploadF
   }
 };
 
-const createQueries = (currentUser: Models.Document) => {
+const createQueries = (currentUser: Models.Document, types: string[], searchText: string, sort: string, limit?: number) => {
   const queries = [Query.or([Query.equal("owner", [currentUser.$id]), Query.contains("users", [currentUser.email])])];
 
   // todo: search, sort, limit, etc
+  if (types.length > 0) {
+    queries.push(Query.equal("type", types));
+  }
+  if (searchText) {
+    console.log("(createquery)searchText->", searchText);
+    queries.push(Query.contains("name", searchText));
+  }
+  if (limit) {
+    queries.push(Query.limit(limit));
+  }
+  if (sort) {
+    const [sortBy, orderBy] = sort.split("-");
+
+    queries.push(orderBy === "asc" ? Query.orderAsc(sortBy) : Query.orderDesc(sortBy));
+  }
+  console.log({ queries });
   return queries;
 };
 
-export const api_getFiles = async () => {
+export const api_getFiles = async ({ types = [], searchText = "", sort = "$createdAt-desc", limit }: GetFilesProps) => {
   const { databases } = await createAdminClient();
   try {
     const currentUser = await api_getCurrentUser();
     if (!currentUser) {
       throw new Error("User not found");
     }
-    const queries = createQueries(currentUser);
+    console.log("(getfiles)searchText->", searchText);
+    const queries = createQueries(currentUser, types, searchText, sort, limit);
 
     // console.log({ currentUser, queries });
 

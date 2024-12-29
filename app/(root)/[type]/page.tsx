@@ -1,13 +1,19 @@
 import Card from "@/components/Card";
 import Sort from "@/components/Sort";
 import { api_getFiles } from "@/lib/actions/file.actions";
+import { getFileTypesParams } from "@/lib/utils";
 import { Models } from "node-appwrite";
 import React from "react";
 
-const page = async ({ params }: SearchParamProps) => {
+const page = async ({ searchParams, params }: SearchParamProps) => {
   const type = ((await params)?.type as string) || "";
+  const searchText = ((await searchParams)?.query as string) || "";
+  const sort = ((await searchParams)?.sort as string) || "";
 
-const files = await api_getFiles();
+  const types = getFileTypesParams(type) as FileType[];
+  console.log("web->searchText->", searchText);
+
+  const files = await api_getFiles({ types, searchText, sort });
 
   return (
     <div className="page-container">
@@ -20,9 +26,7 @@ const files = await api_getFiles();
           </p>
 
           <div className="sort-container">
-            <p className="body-1 hidden sm:block text-light-200">
-              Sort by:
-            </p>
+            <p className="body-1 hidden sm:block text-light-200">Sort by:</p>
             <Sort />
           </div>
         </div>
@@ -34,7 +38,9 @@ const files = await api_getFiles();
             <Card key={file.$id} file={file} />
           ))}
         </section>
-      ): (<p className="empty-list">No files uploaded</p>)}
+      ) : (
+        <p className="empty-list">No files uploaded</p>
+      )}
     </div>
   );
 };
